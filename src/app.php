@@ -1,6 +1,7 @@
 <?php
 
 use HugoFlying\Silex\Provider\TweetInspectorServiceProvider;
+use HugoFlying\TweetInspector;
 use Kud\Silex\Provider\TmhOAuthServiceProvider;
 use Silex\Application;
 use Silex\Provider\HttpCacheServiceProvider;
@@ -17,7 +18,13 @@ $app->register(new HttpCacheServiceProvider());
 
 $app->register(new TmhOAuthServiceProvider());
 
-$app->register(new TweetInspectorServiceProvider());
+$app['tweet.inspector'] = $app->share(function () use ($app) {
+    return new TweetInspector(
+        $app['tmhoauth'],
+        $app['tmhoauth.utils'],
+        $app['tweet.inspector.ttl']
+    );
+});
 
 $app->register(new TwigServiceProvider(), array(
     'twig.options' => array('cache' => $app['twig.cache_dir']),
