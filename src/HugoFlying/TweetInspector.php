@@ -97,7 +97,11 @@ class TweetInspector
 
     private function isTweetAboutFlying($tweet)
     {
-        $text = $this->transliterator->transliterate($tweet->text);
+        if ($this->transliterator) {
+            $text = $this->transliterator->transliterate($tweet->text);
+        } else {
+            $text = $tweet->text;
+        }
 
         if (preg_match($this->pattern, $text)) {
             return true;
@@ -121,7 +125,7 @@ class TweetInspector
             'include_rts' => false,
             'include_entities' => true,
             'count' => 25,
-            //'since_id' => 
+            //'since_id' =>
         ));
 
         $response = $this->client->response;
