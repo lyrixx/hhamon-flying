@@ -12,6 +12,7 @@ class TweetInspector
 
     private $client;
     private $pattern;
+    private $transliterator;
     private $ttl;
     private $utils;
 
@@ -32,11 +33,13 @@ class TweetInspector
     public function __construct(TmhOAuth $client, TmhUtilities $utils, $ttl)
     {
         $this->client = $client;
-        $this->utils  = $utils;
-        $this->ttl    = $ttl;
+        $this->utils = $utils;
+        $this->ttl = $ttl;
 
         $words = array_map(function($word) { return preg_quote($word, '/'); }, $this->words);
         $this->pattern = '/'.implode('|', $words).'/';
+
+        $this->transliterator = \Transliterator::create('ASCII-Latin', \Transliterator::FORWARD);
     }
 
     public function getRecentTweetAboutFlying()
@@ -94,9 +97,8 @@ class TweetInspector
 
     private function isTweetAboutFlying($tweet)
     {
-        $transliterator = \Transliterator::create('ASCII-Latin', \Transliterator::FORWARD);
-        if ($transliterator) {
-            $text = $transliterator->transliterate($tweet->text);
+        if ($this->transliterator) {
+            $text = $this->transliterator->transliterate($tweet->text);
         } else {
             $text = $tweet->text;
         }
